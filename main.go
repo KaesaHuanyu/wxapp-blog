@@ -5,8 +5,8 @@ import (
 	"github.com/labstack/echo"
 	"github.com/labstack/echo/middleware"
 	"github.com/sirupsen/logrus"
-	"handler"
-	_ "model"
+	"wxapp-blog/handler"
+	_ "wxapp-blog/model"
 )
 
 const (
@@ -30,22 +30,22 @@ func main() {
 
 	h := handler.NewHandler(db)
 	//article api
-	e.GET("/" + apiVersion + "/articles", h.ListArticle)
-	e.GET("/" + apiVersion + "/articles/:id", h.GetArticle)
-	e.POST("/" + apiVersion + "/topics/:topicid/articles", h.CreateArticle)
-	e.PUT("/" + apiVersion + "/articles/:id", h.UpdateArticle)
-	e.DELETE("/" + apiVersion + "/articles/:id", h.DeleteArticle)
+	e.GET("/"+apiVersion+"/articles", h.ListArticle)
+	e.GET("/"+apiVersion+"/articles/:id", h.GetArticle)
+	e.POST("/"+apiVersion+"/topics/:topicid/articles", h.CreateArticle)
+	e.PUT("/"+apiVersion+"/articles/:id", h.UpdateArticle)
+	e.DELETE("/"+apiVersion+"/articles/:id", h.DeleteArticle)
 	//e.GET("/v1/articles/search", h.SearchArticle)
-	e.GET("/" + apiVersion + "/articles/:id/like", h.LikeArticle)
+	e.GET("/"+apiVersion+"/articles/:id/like", h.LikeArticle)
 	//comment api
-	e.GET("/" + apiVersion + "/articles/:articleid/comments", h.ListComment)
-	e.POST("/" + apiVersion + "/articles/:articleid/comments", h.CreateComment)
-	e.DELETE("/" + apiVersion + "/articles/:articleid/comments/:commentid", h.DeleteComment)
+	e.GET("/"+apiVersion+"/articles/:articleid/comments", h.ListComment)
+	e.POST("/"+apiVersion+"/articles/:articleid/comments", h.CreateComment)
+	e.DELETE("/"+apiVersion+"/articles/:articleid/comments/:commentid", h.DeleteComment)
 	//topic api
-	e.GET("/" + apiVersion + "/topics", h.ListTopic)
-	e.GET("/" + apiVersion + "/topics/:id", h.GetTopic)
-	e.POST("/" + apiVersion + "/topics", h.CreateTopic)
-	e.PUT("/" + apiVersion + "/topics/:id", h.UpdateTopic)
-	e.DELETE("/" + apiVersion + "/topics/:id", h.DeleteTopic)
+	e.GET("/"+apiVersion+"/topics", h.ListTopic)
+	e.GET("/"+apiVersion+"/topics/:id", h.GetTopic)
+	e.POST("/"+apiVersion+"/topics", h.CreateTopic)
+	e.PUT("/"+apiVersion+"/topics/:id", h.UpdateTopic)
+	e.DELETE("/"+apiVersion+"/topics/:id", h.DeleteTopic)
 	logrus.Error(e.Start(":1323"))
 }

@@ -1,21 +1,20 @@
 package handler
 
 import (
-	"github.com/labstack/echo"
-	"net/http"
-	"time"
-	"math/rand"
-	"github.com/sirupsen/logrus"
 	"fmt"
-	"model"
 	"github.com/go-pg/pg/orm"
+	"github.com/labstack/echo"
+	"github.com/sirupsen/logrus"
+	"math/rand"
+	"net/http"
 	"sync"
+	"time"
+	"wxapp-blog/model"
 )
 
 func (h *handler) ListTopic(c echo.Context) error {
 	result := make(map[string]interface{})
 	result["time"] = time.Now().Format(layout)
-
 
 	return c.JSONPretty(http.StatusOK, result, "    ")
 }
@@ -31,8 +30,8 @@ func (h *handler) GetTopic(c echo.Context) error {
 		_, _, topic := model.NewModels()
 		err := h.DB.Model(topic).Column("topic.*", "Articles").
 			Relation("Articles", func(q *orm.Query) (*orm.Query, error) {
-			return q, nil
-		}).First()
+				return q, nil
+			}).First()
 		if err != nil {
 			result["status"] = "ERROR"
 			result["topic"] = nil
@@ -50,8 +49,8 @@ func (h *handler) GetTopic(c echo.Context) error {
 				article.Comments = model.NewCommentSlice()
 				err := h.DB.Model(article).Column("article.*", "Comments").
 					Relation("Comments", func(q *orm.Query) (*orm.Query, error) {
-					return q, nil
-				}).First()
+						return q, nil
+					}).First()
 				if err != nil {
 					result["status"] = "ERROR"
 					result["topic"] = nil

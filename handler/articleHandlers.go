@@ -2,13 +2,13 @@ package handler
 
 import (
 	"fmt"
+	"github.com/go-pg/pg/orm"
 	"github.com/labstack/echo"
 	"github.com/sirupsen/logrus"
-	"model"
 	"net/http"
-	"time"
 	"strconv"
-	"github.com/go-pg/pg/orm"
+	"time"
+	"wxapp-blog/model"
 )
 
 func (h *handler) GetArticle(c echo.Context) error {
@@ -23,7 +23,7 @@ func (h *handler) GetArticle(c echo.Context) error {
 		err := h.DB.Model(article).Column("article.*", "Comments").
 			Relation("Comments", func(q *orm.Query) (*orm.Query, error) {
 				return q, nil
-		}).First()
+			}).First()
 		if err != nil {
 			result["status"] = "ERROR"
 			result["article"] = nil
@@ -43,15 +43,15 @@ func (h *handler) GetArticle(c echo.Context) error {
 
 	select {
 	case message := <-messageChan:
-	return c.JSONPretty(http.StatusOK, message, "    ")
+		return c.JSONPretty(http.StatusOK, message, "    ")
 	case errMessage := <-errorChan:
-	return c.JSONPretty(http.StatusInternalServerError, errMessage, "    ")
+		return c.JSONPretty(http.StatusInternalServerError, errMessage, "    ")
 	case <-time.After(10 * time.Second):
-	logrus.Info("CreateArticle timeout")
-	result["status"] = "TIMEOUT"
-	result["article"] = nil
-	result["status_code"] = http.StatusGatewayTimeout
-	return c.JSONPretty(http.StatusGatewayTimeout, result, "    ")
+		logrus.Info("CreateArticle timeout")
+		result["status"] = "TIMEOUT"
+		result["article"] = nil
+		result["status_code"] = http.StatusGatewayTimeout
+		return c.JSONPretty(http.StatusGatewayTimeout, result, "    ")
 	}
 }
 

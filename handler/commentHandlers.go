@@ -4,10 +4,10 @@ import (
 	"fmt"
 	"github.com/labstack/echo"
 	"github.com/sirupsen/logrus"
-	"model"
 	"net/http"
 	"strconv"
 	"time"
+	"wxapp-blog/model"
 )
 
 func (h *handler) ListComment(c echo.Context) error {

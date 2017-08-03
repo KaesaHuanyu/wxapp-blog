@@ -3,8 +3,8 @@ package model
 import (
 	"github.com/go-pg/pg"
 	"github.com/go-pg/pg/orm"
-	"strings"
 	"github.com/sirupsen/logrus"
+	"strings"
 	"time"
 )
 
@@ -17,31 +17,31 @@ type (
 		Id         int               `json:"id"`
 		Title      string            `json:"title" form:"title" sql:",null"`
 		Content    string            `json:"content" form:"content" sql:",null"` //html & md
-		CreateTime string             `json:"create_time"`
-		UpdateTime string             `json:"update_time"`
+		CreateTime string            `json:"create_time"`
+		UpdateTime string            `json:"update_time"`
 		ClickCount int               `json:"click_count"`
 		LikeReader map[string]string `json:"reader_like"`
 		Comments   []*Comment        `json:"comments"`
 		TopicId    int               `json:"topic_id"` // 0: 话题不明
-		Topic *Topic
+		Topic      *Topic
 	}
 	Comment struct {
 		Id         int    `json:"id"`
 		Content    string `json:"content" form:"content" sql:",null"`
-		CreateTime string  `json:"create_time"`
+		CreateTime string `json:"create_time"`
 		NickName   string `json:"nick_name" form:"nick_name" sql:",null"`
 		AvatarUrl  string `json:"avatar_url" form:"avatar_url" sql:",null"`
-		Gender     int `json:"gender" form:"gender"` //性别 0：未知、1：男、2：女
+		Gender     int    `json:"gender" form:"gender"` //性别 0：未知、1：男、2：女
 		ArticleId  int    `json:"article_id"`
-		Article *Article
+		Article    *Article
 		//Reader *reader `json:"reader"`
 	}
 	Topic struct {
 		Id         int        `json:"id"`
 		TopicName  string     `json:"topic_name" form:"topic_name" sql:",null"`
 		LikeCount  int        `json:"like_count"`
-		CreateTime string      `json:"create_time"`
-		UpdateTime string `json:"update_time"`
+		CreateTime string     `json:"create_time"`
+		UpdateTime string     `json:"update_time"`
 		Articles   []*Article `json:"articles"`
 	}
 	//reader struct {
@@ -127,7 +127,7 @@ func NewComment(id, articleid, gender int, content, nickname, avatarurl string) 
 		CreateTime: time.Unix(int64(id), 0).Format(layout),
 		NickName:   nickname,
 		AvatarUrl:  avatarurl,
-		Gender: gender,
+		Gender:     gender,
 		ArticleId:  articleid,
 	}
 }

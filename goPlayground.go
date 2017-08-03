@@ -1,9 +1,9 @@
 package main
 
 import (
+	"fmt"
 	"github.com/go-pg/pg"
 	"model"
-	"fmt"
 )
 
 func main() {
