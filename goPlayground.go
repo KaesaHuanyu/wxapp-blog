@@ -2,57 +2,39 @@ package main
 
 import (
 	"fmt"
-	"github.com/go-pg/pg"
-	"model"
+	"time"
 )
 
-func main() {
-	//t := time.Now().Unix()
-	//fmt.Println(t, time.Unix(0, 0))
-	//
-	//body, _ := ioutil.ReadFile("golang.org/x/net/html")
-	//tree, err := html.Parse(strings.NewReader(string(body)))
-	//if err != nil {
-	//	panic(err)
-	//}
-	//fmt.Printf("%v", tree)
+func _main() {
+	fmt.Println(int(time.Now().UnixNano()))
+}
 
-	db := pg.Connect(&pg.Options{
-		User:     "postgres",
-		Password: "admin",
-		Addr:     "119.29.243.98:5432",
-	})
-	defer db.Close()
-
-	//topict := int(time.Now().Unix())
-	//topic = model.NewTopic(topict, "testTopic")
-	//err = db.Insert(topic)
-	//if err != nil {
-	//	logrus.Error(err)
-	//}
-	//logrus.Info(topic)
-	//
-	//article = model.NewArticle(int(time.Now().Unix()), topict, "testTitle", "testContent")
-	//err = db.Insert(article)
-	//if err != nil {
-	//	logrus.Error(err)
-	//}
-	//logrus.Info(article)
-	//
-	//comment = model.NewComment(int(time.Now().Unix()), topict, 1, "testComment",
-	//	"huanyu0w0", "")
-	//err = db.Insert(comment)
-	//if err != nil {
-	//	logrus.Error(err)
-	//}
-	//logrus.Info(comment)
-
-	articlee, _, _ := model.NewModels()
-	err := db.Model(articlee).
-		Column("article.*", "Topic").
-		Where("article.id = ?", 1501779162).
-		Select()
-	if err == nil {
-		fmt.Println(articlee.Topic)
+func lengthOfLIS(arr []int) (num int) {
+	if len(arr) == 0 || arr == nil {
+		return 0
 	}
+	dp := []int{1}
+	for i := 1; i < len(arr); i++ {
+		min := false
+		max := 0
+		for j := 0; j < i; j++ {
+			if arr[j] < arr[i] {
+				min = true
+				if dp[j] > max {
+					max = dp[j]
+				}
+			}
+		}
+		if !min {
+			dp = append(dp, 1)
+		} else {
+			dp = append(dp, max+1)
+		}
+	}
+	for _, v := range dp {
+		if v > num {
+			num = v
+		}
+	}
+	return
 }

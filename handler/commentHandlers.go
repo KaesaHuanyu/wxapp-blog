@@ -10,41 +10,32 @@ import (
 	"wxapp-blog/model"
 )
 
-func (h *handler) ListComment(c echo.Context) error {
-	result := make(map[string]interface{})
-	result["time"] = time.Now().Format(layout)
-
-	return c.JSONPretty(http.StatusOK, result, "    ")
-}
-
 func (h *handler) CreateComment(c echo.Context) error {
 	result := make(map[string]interface{})
 	t := time.Now()
 	result["time"] = t.Format(layout)
-	comment_id := int(t.Unix())
-	article_id, err := strconv.Atoi(c.Param("articleid"))
-	if err != nil {
-		result["comment_id"] = c.Param("commentid")
-		result["article_id"] = c.Param("articleid")
-		result["status"] = "ERROR"
-		result["error"] = fmt.Sprint(err)
-		result["comment"] = nil
-		result["status_code"] = http.StatusBadRequest
-		return c.JSONPretty(http.StatusBadRequest, result, "    ")
-	}
+	comment_id := int(t.UnixNano())
 	result["comment_id"] = comment_id
-	result["article_id"] = article_id
 
 	messageChan := make(chan map[string]interface{})
 	errorChan := make(chan map[string]interface{})
 	go func(c echo.Context, messageChan, errorChan chan map[string]interface{}) {
-		comment := model.NewComment(comment_id, article_id, 0, "", "", "")
-		if err = c.Bind(comment); err != nil {
+		comment := model.NewComment(comment_id)
+		if err := c.Bind(comment); err != nil {
 			result["status"] = "ERROR"
 			result["comment"] = nil
 			result["error"] = fmt.Sprint(err)
 			result["status_code"] = http.StatusInternalServerError
-			logrus.Error("CreateComment.Bind ERROR: ", err)
+			logrus.Errorf("[%s] Create Comment Bind ERROR: [%s]", time.Now().String(), err.Error())
+			errorChan <- result
+			return
+		}
+
+		if comment.Content == "" || comment.ArticleId == 0 || comment.NickName == "" || comment.AvatarUrl == "" {
+			result["status"] = "ERROR"
+			result["error"] = fmt.Sprint("some message is nil")
+			result["status_code"] = http.StatusBadRequest
+			logrus.Errorf("[%s] some message is nil", time.Now().String())
 			errorChan <- result
 			return
 		}
@@ -55,38 +46,13 @@ func (h *handler) CreateComment(c echo.Context) error {
 		if err != nil {
 			result["status"] = "ERROR"
 			result["comment"] = nil
-			result["error"] = fmt.Sprint("TxBegin ERROR: ", err)
+			result["error"] = fmt.Sprint(err)
 			result["status_code"] = http.StatusInternalServerError
-			logrus.Error("TxBegin ERROR: ", err)
+			logrus.Errorf("[%s] Tx Begin ERROR: [%s]", time.Now().String(), err.Error())
 			errorChan <- result
 			return
 		}
-		////查找article
-		//article, _, _ := model.NewModels()
-		//_, err = tx.Query(article, `SELECT * FROM articles WHERE id = ?`, article_id)
-		//if err != nil {
-		//	tx.Rollback()
-		//	result["status"] = "ERROR"
-		//	result["comment"] = nil
-		//	result["error"] = fmt.Sprint(err)
-		//	result["status_code"] = http.StatusInternalServerError
-		//	logrus.Error("QueryArticleToPostgres ERROR: ", err)
-		//	errorChan <- result
-		//	return
-		//}
-		////更新article
-		//article.Comments = append(article.Comments, comment)
-		//err = tx.Update(article)
-		//if err != nil {
-		//	tx.Rollback()
-		//	result["status"] = "ERROR"
-		//	result["comment"] = nil
-		//	result["error"] = fmt.Sprint(err)
-		//	result["status_code"] = http.StatusInternalServerError
-		//	logrus.Error("UpdateArticleToPostgres ERROR: ", err)
-		//	errorChan <- result
-		//	return
-		//}
+
 		//插入comment
 		err = tx.Insert(comment)
 		if err != nil {
@@ -95,7 +61,7 @@ func (h *handler) CreateComment(c echo.Context) error {
 			result["comment"] = nil
 			result["error"] = fmt.Sprint(err)
 			result["status_code"] = http.StatusInternalServerError
-			logrus.Error("InsertCommentToPostgres ERROR: ", err)
+			logrus.Errorf("[%s] Insert Comment To Postgres ERROR: [%s]", time.Now().String(), err.Error())
 			errorChan <- result
 			return
 		}
@@ -104,7 +70,7 @@ func (h *handler) CreateComment(c echo.Context) error {
 		result["status"] = "CREATED"
 		result["comment"] = comment
 		result["status_code"] = http.StatusCreated
-		logrus.Infof("Create Comment id: [ %d ] in Article( id: [ %d ] ) Success", comment_id, article_id)
+		logrus.Infof("[%s] Create Comment id: [ %d ] in Article( id: [ %d ] ) Success", time.Now().String(), comment.Id, comment.ArticleId)
 		messageChan <- result
 	}(c, messageChan, errorChan)
 
@@ -114,7 +80,7 @@ func (h *handler) CreateComment(c echo.Context) error {
 	case errMessage := <-errorChan:
 		return c.JSONPretty(http.StatusInternalServerError, errMessage, "    ")
 	case <-time.After(10 * time.Second):
-		logrus.Info("CreateComment timeout")
+		logrus.Infof("[%s] Create Comment timeout", time.Now().String())
 		result["status"] = "TIMEOUT"
 		result["comment"] = nil
 		result["status_code"] = http.StatusGatewayTimeout
@@ -125,6 +91,62 @@ func (h *handler) CreateComment(c echo.Context) error {
 func (h *handler) DeleteComment(c echo.Context) error {
 	result := make(map[string]interface{})
 	result["time"] = time.Now().Format(layout)
+	comment_id, err := strconv.Atoi(c.Param("comment_id"))
+	if err != nil {
+		result["status"] = "ERROR"
+		result["error"] = fmt.Sprint(err)
+		result["status_code"] = http.StatusBadRequest
+		return c.JSONPretty(http.StatusBadRequest, result, "    ")
+	}
+	result["comment_id"] = comment_id
 
-	return c.JSONPretty(http.StatusNoContent, result, "    ")
+	messageChan := make(chan map[string]interface{})
+	errorChan := make(chan map[string]interface{})
+	go func(c echo.Context, messageChan, errorChan chan map[string]interface{}) {
+		comment := model.NewComment(comment_id)
+
+		//数据库操作
+		//创建事务
+		tx, err := h.DB.Begin()
+		if err != nil {
+			result["status"] = "ERROR"
+			result["error"] = fmt.Sprint(err)
+			result["status_code"] = http.StatusInternalServerError
+			logrus.Errorf("[%s] Tx Begin ERROR: [%s]", time.Now().String(), err.Error())
+			errorChan <- result
+			return
+		}
+
+		//删除comment
+		_, err = tx.Model(comment).Where("id = ?", comment.Id).Delete()
+		if err != nil {
+			tx.Rollback()
+			result["status"] = "ERROR"
+			result["comment"] = nil
+			result["error"] = fmt.Sprint(err)
+			result["status_code"] = http.StatusInternalServerError
+			logrus.Errorf("[%s] Insert Comment To Postgres ERROR: [%s]", time.Now().String(), err.Error())
+			errorChan <- result
+			return
+		}
+		tx.Commit()
+
+		result["status"] = "OK"
+		result["comment"] = comment
+		result["status_code"] = http.StatusOK
+		logrus.Infof("[%s] Delete Comment: [ %d ] Success", time.Now().String(), comment.Id)
+		messageChan <- result
+	}(c, messageChan, errorChan)
+
+	select {
+	case message := <-messageChan:
+		return c.JSONPretty(http.StatusCreated, message, "    ")
+	case errMessage := <-errorChan:
+		return c.JSONPretty(http.StatusInternalServerError, errMessage, "    ")
+	case <-time.After(10 * time.Second):
+		logrus.Infof("[%s] Delete Comment timeout", time.Now().String())
+		result["status"] = "TIMEOUT"
+		result["status_code"] = http.StatusGatewayTimeout
+		return c.JSONPretty(http.StatusGatewayTimeout, result, "    ")
+	}
 }

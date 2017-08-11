@@ -1,1 +1,2 @@
-FROM golang
+FROM scratch
+FROM alpine

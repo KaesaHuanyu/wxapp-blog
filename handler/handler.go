@@ -19,17 +19,17 @@ func NewHandler(db *pg.DB) *handler {
 	return &handler{db}
 }
 
-func getTimeNode(duration string) int64 {
+func getTimeLimit(duration string) int {
 	switch duration {
 	case "day", "latest":
-		return time.Now().Add(-24 * time.Hour).Unix()
+		return int(time.Now().Add(-1 * time.Hour).UnixNano())
 	case "week":
-		return time.Now().Add(-7 * 24 * time.Hour).Unix()
+		return int(time.Now().Add(-7 * 24 * time.Hour).UnixNano())
 	case "month":
-		return time.Now().Add(-30 * 24 * time.Hour).Unix()
+		return int(time.Now().Add(-30 * 24 * time.Hour).UnixNano())
 	case "year":
-		return time.Now().Add(-365 * 24 * time.Hour).Unix()
+		return int(time.Now().Add(-365 * 24 * time.Hour).UnixNano())
 	default:
-		return time.Now().Add(-24 * time.Hour).Unix()
+		return 0
 	}
 }
