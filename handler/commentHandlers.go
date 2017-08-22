@@ -31,11 +31,19 @@ func (h *handler) CreateComment(c echo.Context) error {
 			return
 		}
 
-		if comment.Content == "" || comment.ArticleId == 0 || comment.NickName == "" || comment.AvatarUrl == "" {
+		if comment.AvatarUrl == "" {
+			comment.AvatarUrl = Default_Avatar
+		}
+
+		if comment.NickName == "" {
+			comment.NickName = c.Request().Host
+		}
+
+		if comment.Content == "" || comment.ArticleId == 0 {
 			result["status"] = "ERROR"
-			result["error"] = fmt.Sprint("some message is nil")
+			result["error"] = fmt.Sprint("Request Body need content and article_id.")
 			result["status_code"] = http.StatusBadRequest
-			logrus.Errorf("[%s] some message is nil", time.Now().String())
+			logrus.Errorf("[%s] Request Body need content and article_id", time.Now().String())
 			errorChan <- result
 			return
 		}
@@ -65,12 +73,41 @@ func (h *handler) CreateComment(c echo.Context) error {
 			errorChan <- result
 			return
 		}
+		article := model.NewArticle(comment.ArticleId)
+		err = tx.Model(article).Where("id = ?", article.Id).Select()
+		if err != nil {
+			tx.Rollback()
+			result["status"] = "ERROR"
+			result["comment"] = nil
+			result["error"] = fmt.Sprint(err)
+			result["status_code"] = http.StatusInternalServerError
+			logrus.Errorf("[%s] Select Article from Postgres ERROR: [%s]", time.Now().String(), err.Error())
+			errorChan <- result
+			return
+		}
+		article.CommentCount++
+		_, err = tx.Model(article).Set("comment_count = ?", article.CommentCount).
+			Where("id = ?", article.Id).
+			Update()
+		if err != nil {
+			tx.Rollback()
+			result["status"] = "ERROR"
+			result["comment"] = nil
+			result["error"] = fmt.Sprint(err)
+			result["status_code"] = http.StatusInternalServerError
+			logrus.Errorf("[%s] Update Article-CommentCount from Postgres ERROR: [%s]",
+				time.Now().String(), err.Error())
+			errorChan <- result
+			return
+		}
+
 		tx.Commit()
 
 		result["status"] = "CREATED"
 		result["comment"] = comment
 		result["status_code"] = http.StatusCreated
-		logrus.Infof("[%s] Create Comment id: [ %d ] in Article( id: [ %d ] ) Success", time.Now().String(), comment.Id, comment.ArticleId)
+		logrus.Infof("[%s] Create Comment id: [ %d ] in Article( %d ) Success",
+			time.Now().String(), comment.Id, comment.ArticleId)
 		messageChan <- result
 	}(c, messageChan, errorChan)
 
@@ -116,6 +153,17 @@ func (h *handler) DeleteComment(c echo.Context) error {
 			errorChan <- result
 			return
 		}
+		err = tx.Model(comment).Where("id = ?", comment.Id).Select()
+		if err != nil {
+			tx.Rollback()
+			result["status"] = "ERROR"
+			result["comment"] = nil
+			result["error"] = fmt.Sprint(err)
+			result["status_code"] = http.StatusInternalServerError
+			logrus.Errorf("[%s] Select Comment from Postgres ERROR: [%s]", time.Now().String(), err.Error())
+			errorChan <- result
+			return
+		}
 
 		//删除comment
 		_, err = tx.Model(comment).Where("id = ?", comment.Id).Delete()
@@ -126,6 +174,34 @@ func (h *handler) DeleteComment(c echo.Context) error {
 			result["error"] = fmt.Sprint(err)
 			result["status_code"] = http.StatusInternalServerError
 			logrus.Errorf("[%s] Insert Comment To Postgres ERROR: [%s]", time.Now().String(), err.Error())
+			errorChan <- result
+			return
+		}
+
+		article := model.NewArticle(comment.ArticleId)
+		err = tx.Model(article).Where("id = ?", article.Id).Select()
+		if err != nil {
+			tx.Rollback()
+			result["status"] = "ERROR"
+			result["comment"] = nil
+			result["error"] = fmt.Sprint(err)
+			result["status_code"] = http.StatusInternalServerError
+			logrus.Errorf("[%s] Select Article from Postgres ERROR: [%s]", time.Now().String(), err.Error())
+			errorChan <- result
+			return
+		}
+		article.CommentCount--
+		_, err = tx.Model(article).Set("comment_count = ?", article.CommentCount).
+			Where("id = ?", article.Id).
+			Update()
+		if err != nil {
+			tx.Rollback()
+			result["status"] = "ERROR"
+			result["comment"] = nil
+			result["error"] = fmt.Sprint(err)
+			result["status_code"] = http.StatusInternalServerError
+			logrus.Errorf("[%s] Update Article-CommentCount from Postgres ERROR: [%s]",
+				time.Now().String(), err.Error())
 			errorChan <- result
 			return
 		}

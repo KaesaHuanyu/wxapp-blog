@@ -1,0 +1,296 @@
+<!DOCTYPE html>
+<html>
+<head>
+	<title>Dashboard</title>
+	<meta charset="UTF-8">
+   	<link rel="stylesheet" href="https://code.getmdl.io/1.3.0/material.grey-blue.min.css" />
+    <script type="text/javascript" src="http://images.huanyu0w0.cn/material.min.js"></script>
+    <link rel="stylesheet" href="https://fonts.googleapis.com/icon?family=Material+Icons">
+</head>
+<body>
+
+<div class="mdl-layout mdl-js-layout mdl-layout--fixed-header mdl-layout--fixed-tabs">
+
+  <header class="mdl-layout__header">
+    <div class="mdl-layout__header-row">
+      <div class="mdl-layout-title">Dashboard</div>
+      <div class="mdl-layout-spacer"></div>
+    </div>
+    <div class="mdl-layout__tab-bar mdl-js-ripple-effect">
+      <a href="#fixed-tab-1" class="mdl-layout__tab is-active">Topics</a>
+      <a href="#fixed-tab-2" class="mdl-layout__tab">Articles</a>
+      <a href="#fixed-tab-3" class="mdl-layout__tab">Comments</a>
+    </div>
+  </header>
+
+  <div class="mdl-layout__drawer">
+    <span class="mdl-layout-title">Title</span>
+    <nav class="mdl-navigation">
+      <a class="mdl-navigation__link" href="">Link</a>
+      <a class="mdl-navigation__link" href="">Link</a>
+      <a class="mdl-navigation__link" href="">Link</a>
+      <a class="mdl-navigation__link" href="">Link</a>
+    </nav>
+  </div>
+
+  <main class="mdl-layout__content">
+  	<section class="mdl-layout__tab-panel is-active" id="fixed-tab-1">
+
+      <div class="page-content mdl-grid">
+
+    	<div class="mdl-cell mdl-cell--12-col"></div>
+
+    	<div class="mdl-cell mdl-cell--1-col"></div>
+    	<div class="mdl-cell mdl-cell--3-col mdl-card mdl-shadow--2dp mdl-cell--top">
+    		<div class="mdl-grid">
+    			<div class="mdl-cell mdl-cell--12-col">
+				  	<h2 class="mdl-card__title-text">Create</h2>
+				</div>
+
+				<div class="mdl-cell mdl-cell--1-col"></div>
+    			<div class="mdl-cell mdl-cell--11-col">
+					<form action="/v1/topics" method="post" onsubmit="submitted">
+					  <div class="mdl-textfield mdl-js-textfield mdl-textfield--floating-label">
+					    <input class="mdl-textfield__input" type="text" name="topic_name" id="topic_name">
+					    <label class="mdl-textfield__label" for="topic_name">Topic Name...</label>
+					  </div>
+				</div>
+
+    			<div class="mdl-cell mdl-cell--1-col"></div>
+				<div class="mdl-cell mdl-cell--11-col">
+					  <div class="mdl-textfield mdl-js-textfield mdl-textfield--floating-label">
+					    <input class="mdl-textfield__input" type="text" id="username">
+					    <label class="mdl-textfield__label" for="username">User Name...</label>
+					  </div>
+				</div>
+
+    			<div class="mdl-cell mdl-cell--1-col"></div>
+				<div class="mdl-cell mdl-cell--11-col">
+					  <div class="mdl-textfield mdl-js-textfield mdl-textfield--floating-label">
+					    <input class="mdl-textfield__input" type="password" id="password">
+					    <label class="mdl-textfield__label" for="password">Password...</label>
+					  </div>
+    			</div>
+
+    			<div class="mdl-cell mdl-cell--1-col"></div>
+				<div class="mdl-cell mdl-cell--11-col">
+					  <button class="mdl-button mdl-js-button mdl-button--raised mdl-button--accent">
+					  	Create
+					  </button>
+				</div>
+    				</form>
+					<script type="text/javascript">
+						function submitted() {
+						    document.location = "http://" + document.getElementById("username").value + ":" + document.getElementById("password").value + "@localhost";
+						}
+					</script>
+    		</div>
+    	</div>
+
+    	<div class="mdl-cell mdl-cell--3-col mdl-card mdl-shadow--2dp mdl-cell--top">
+    		<div class="mdl-grid">
+    			<div class="mdl-cell mdl-cell--12-col">
+				  	<h2 class="mdl-card__title-text">Update</h2>
+				</div>
+
+				<div class="mdl-cell mdl-cell--1-col"></div>
+    			<div class="mdl-cell mdl-cell--11-col">
+					<div class="mdl-textfield mdl-js-textfield mdl-textfield--floating-label">
+					  <input class="mdl-textfield__input" type="text" id="topic_name_update">
+					  <label class="mdl-textfield__label" for="topic_name_update">Old Topic Name...</label>
+					</div>
+				</div>
+
+				<div class="mdl-cell mdl-cell--1-col"></div>
+    			<div class="mdl-cell mdl-cell--11-col">
+					<form action="javascript:update_url()" method="put" onsubmit="submitted">
+					  <div class="mdl-textfield mdl-js-textfield mdl-textfield--floating-label">
+					    <input class="mdl-textfield__input" type="text" name="topic_name" id="topic_name_update_new">
+					    <label class="mdl-textfield__label" for="topic_name_update_new">New Topic Name...</label>
+					  </div>
+				</div>
+
+    			<div class="mdl-cell mdl-cell--1-col"></div>
+				<div class="mdl-cell mdl-cell--11-col">
+					  <div class="mdl-textfield mdl-js-textfield mdl-textfield--floating-label">
+					    <input class="mdl-textfield__input" type="text" id="username">
+					    <label class="mdl-textfield__label" for="username">User Name...</label>
+					  </div>
+				</div>
+
+    			<div class="mdl-cell mdl-cell--1-col"></div>
+				<div class="mdl-cell mdl-cell--11-col">
+					  <div class="mdl-textfield mdl-js-textfield mdl-textfield--floating-label">
+					    <input class="mdl-textfield__input" type="password" id="password">
+					    <label class="mdl-textfield__label" for="password">Password...</label>
+					  </div>
+    			</div>
+
+    			<div class="mdl-cell mdl-cell--1-col"></div>
+				<div class="mdl-cell mdl-cell--11-col">
+					  <button class="mdl-button mdl-js-button mdl-button--raised mdl-button--accent">
+					  	Update
+					  </button>
+				</div>
+    				</form>
+					<script type="text/javascript">
+						function update_url() string {
+							return "/v1/topics/" + document.getElementById("topic_name_update").value
+						}
+						function submitted() {
+						    document.location = "http://" + document.getElementById("username").value + ":" + document.getElementById("password").value + "@localhost";
+						}
+					</script>
+    		</div>
+    	</div>
+
+    	<div class="mdl-cell mdl-cell--3-col mdl-card mdl-shadow--2dp mdl-cell--top">
+    		<div class="mdl-grid">
+    			<div class="mdl-cell mdl-cell--12-col">
+				  	<h2 class="mdl-card__title-text">Create</h2>
+				</div>
+
+				<div class="mdl-cell mdl-cell--1-col"></div>
+    			<div class="mdl-cell mdl-cell--11-col">
+					<form action="/v1/topics" method="post" onsubmit="submitted">
+					  <div class="mdl-textfield mdl-js-textfield mdl-textfield--floating-label">
+					    <input class="mdl-textfield__input" type="text" name="topic_name" id="topic_name">
+					    <label class="mdl-textfield__label" for="topic_name">Topic Name...</label>
+					  </div>
+				</div>
+
+    			<div class="mdl-cell mdl-cell--1-col"></div>
+				<div class="mdl-cell mdl-cell--11-col">
+					  <div class="mdl-textfield mdl-js-textfield mdl-textfield--floating-label">
+					    <input class="mdl-textfield__input" type="text" id="username">
+					    <label class="mdl-textfield__label" for="username">User Name...</label>
+					  </div>
+				</div>
+
+    			<div class="mdl-cell mdl-cell--1-col"></div>
+				<div class="mdl-cell mdl-cell--11-col">
+					  <div class="mdl-textfield mdl-js-textfield mdl-textfield--floating-label">
+					    <input class="mdl-textfield__input" type="password" id="password">
+					    <label class="mdl-textfield__label" for="password">Password...</label>
+					  </div>
+    			</div>
+
+    			<div class="mdl-cell mdl-cell--1-col"></div>
+				<div class="mdl-cell mdl-cell--11-col">
+					  <button class="mdl-button mdl-js-button mdl-button--raised mdl-button--accent">
+					  	Create
+					  </button>
+				</div>
+    				</form>
+					<script type="text/javascript">
+						function submitted() {
+						    document.location = "http://" + document.getElementById("username").value + ":" + document.getElementById("password").value + "@localhost";
+						}
+					</script>
+    		</div>
+    	</div>
+      </div>
+    </section>
+
+    <section class="mdl-layout__tab-panel" id="fixed-tab-2">
+      <div class="page-content mdl-grid">
+    	<div class="mdl-cell mdl-cell--2-col"></div>
+    	<div class="mdl-cell mdl-cell--8-col mdl-card mdl-shadow--2dp">
+    		<div class="mdl-grid">
+    			<div class="mdl-cell mdl-cell--2-col"></div>
+    			<div class="mdl-cell mdl-cell--10-col">
+					<form method="delete" onsubmit="submitted">
+					  <div class="mdl-textfield mdl-js-textfield mdl-textfield--floating-label">
+					    <input class="mdl-textfield__input" type="text" name="topic_id" id="topic_id2">
+					    <label class="mdl-textfield__label" for="topic_id2">Topic Id...</label>
+					  </div>
+				</div>
+
+    			<div class="mdl-cell mdl-cell--2-col"></div>
+				<div class="mdl-cell mdl-cell--10-col">
+					  <div class="mdl-textfield mdl-js-textfield mdl-textfield--floating-label">
+					    <input class="mdl-textfield__input" type="text" id="username">
+					    <label class="mdl-textfield__label" for="username">User Name...</label>
+					  </div>
+				</div>
+
+    			<div class="mdl-cell mdl-cell--2-col"></div>
+				<div class="mdl-cell mdl-cell--10-col">
+					  <div class="mdl-textfield mdl-js-textfield mdl-textfield--floating-label">
+					    <input class="mdl-textfield__input" type="password" id="password">
+					    <label class="mdl-textfield__label" for="password">Password...</label>
+					  </div>
+    			</div>
+
+    			<div class="mdl-cell mdl-cell--2-col"></div>
+				<div class="mdl-cell mdl-cell--10-col">
+					  <button class="mdl-button mdl-js-button mdl-button--raised mdl-button--accent">
+					  	Delete
+					  </button>
+				</div>
+    				</form>
+					<script type="text/javascript">
+						function submitted() {
+						    document.location = "http://" + document.getElementById("username").value + ":" + document.getElementById("password").value + "@localhost/v1/topics/" + document.getElementById("topic_id2").value;
+						}
+					</script>
+    		</div>
+    	</div>
+    	<div class="mdl-cell mdl-cell--2-col"></div>
+      </div>
+    </section>
+
+    <section class="mdl-layout__tab-panel" id="fixed-tab-3">
+      <div class="page-content mdl-grid">
+    	<div class="mdl-cell mdl-cell--2-col"></div>
+    	<div class="mdl-cell mdl-cell--8-col mdl-card mdl-shadow--2dp">
+    		<div class="mdl-grid">
+    			<div class="mdl-cell mdl-cell--2-col"></div>
+    			<div class="mdl-cell mdl-cell--10-col">
+					<form action="/v1/topics" method="post" onsubmit="submitted">
+					  <div class="mdl-textfield mdl-js-textfield mdl-textfield--floating-label">
+					    <input class="mdl-textfield__input" type="text" name="topic_name" id="topic_name">
+					    <label class="mdl-textfield__label" for="topic_name">Topic Name...</label>
+					  </div>
+				</div>
+
+    			<div class="mdl-cell mdl-cell--2-col"></div>
+				<div class="mdl-cell mdl-cell--10-col">
+					  <div class="mdl-textfield mdl-js-textfield mdl-textfield--floating-label">
+					    <input class="mdl-textfield__input" type="text" id="username">
+					    <label class="mdl-textfield__label" for="username">User Name...</label>
+					  </div>
+				</div>
+
+    			<div class="mdl-cell mdl-cell--2-col"></div>
+				<div class="mdl-cell mdl-cell--10-col">
+					  <div class="mdl-textfield mdl-js-textfield mdl-textfield--floating-label">
+					    <input class="mdl-textfield__input" type="password" id="password">
+					    <label class="mdl-textfield__label" for="password">Password...</label>
+					  </div>
+    			</div>
+
+    			<div class="mdl-cell mdl-cell--2-col"></div>
+				<div class="mdl-cell mdl-cell--10-col">
+					  <button class="mdl-button mdl-js-button mdl-button--raised mdl-button--accent">
+					  	Create
+					  </button>
+				</div>
+    				</form>
+					<script type="text/javascript">
+						function submitted() {
+						    document.location = "http://" + document.getElementById("username").value + ":" + document.getElementById("password").value + "@localhost";
+						}
+					</script>
+    		</div>
+    	</div>
+    	<div class="mdl-cell mdl-cell--2-col"></div>
+      </div>
+    </section>
+ 
+  </main>
+
+</div>
+
+</body>
+</html>

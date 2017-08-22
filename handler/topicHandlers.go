@@ -16,11 +16,11 @@ import (
 func (h *handler) ListTopic(c echo.Context) error {
 	result := make(map[string]interface{})
 	result["time"] = time.Now().Format(layout)
+	topics := model.NewTopicsSlice()
 
 	messageChan := make(chan map[string]interface{})
 	errorChan := make(chan map[string]interface{})
 	go func(messageChan, errorChan chan map[string]interface{}) {
-		topics := model.NewTopicsSlice()
 		count, err := h.DB.Model(&topics).SelectAndCount()
 		if err != nil {
 			result["status"] = "ERROR"
@@ -33,26 +33,26 @@ func (h *handler) ListTopic(c echo.Context) error {
 			return
 		}
 
-		wg := sync.WaitGroup{}
-		for _, topic := range topics {
-			wg.Add(1)
-			go func(topic *model.Topic) {
-				defer wg.Done()
-				topic.Articles = model.NewArticleSlice()
-				topic.ArticleCount, err = h.DB.Model(&topic.Articles).Where("topic_id = ?", topic.Id).Count()
-				if err != nil {
-					result["status"] = "ERROR"
-					result["count"] = count
-					result["topics"] = nil
-					result["error"] = fmt.Sprint(err)
-					result["status_code"] = http.StatusInternalServerError
-					logrus.Errorf("[%s] List Topics ERROR: [%s]", time.Now().String(), err.Error())
-					errorChan <- result
-					return
-				}
-			}(topic)
-		}
-		wg.Wait()
+		//wg := sync.WaitGroup{}
+		//for _, topic := range topics {
+		//	wg.Add(1)
+		//	go func(topic *model.Topic) {
+		//		defer wg.Done()
+		//		topic.Articles = model.NewArticleSlice()
+		//		topic.ArticleCount, err = h.DB.Model(&topic.Articles).Where("topic_id = ?", topic.Id).Count()
+		//		if err != nil {
+		//			result["status"] = "ERROR"
+		//			result["count"] = count
+		//			result["topics"] = nil
+		//			result["error"] = fmt.Sprint(err)
+		//			result["status_code"] = http.StatusInternalServerError
+		//			logrus.Errorf("[%s] List Topics ERROR: [%s]", time.Now().String(), err.Error())
+		//			errorChan <- result
+		//			return
+		//		}
+		//	}(topic)
+		//}
+		//wg.Wait()
 
 		result["status"] = "OK"
 		result["count"] = count
@@ -232,19 +232,19 @@ func (h *handler) CreateTopic(c echo.Context) error {
 func (h *handler) UpdateTopic(c echo.Context) error {
 	result := make(map[string]interface{})
 	result["time"] = time.Now().Format(layout)
-	id, err := strconv.Atoi(c.Param("topic_id"))
+	topic_id, err := strconv.Atoi(c.Param("topic_id"))
 	if err != nil {
 		result["status"] = "ERROR"
-		result["error"] = fmt.Sprint(err)
+		result["error"] = fmt.Sprint("Topic Id is nil")
 		result["status_code"] = http.StatusBadRequest
-		logrus.Errorf("[%s] Param id ERROR: [%s]", time.Now().String(), err.Error())
+		logrus.Errorf("[%s] Topic Id is nil", time.Now().String())
 		return c.JSONPretty(http.StatusBadRequest, result, "    ")
 	}
 	messageChan := make(chan map[string]interface{})
 	errorChan := make(chan map[string]interface{})
 	go func(c echo.Context, messageChan, errorChan chan map[string]interface{}) {
-		topic := model.NewTopic(id)
-		if err = c.Bind(topic); err != nil {
+		topic := model.NewTopic(topic_id)
+		if err := c.Bind(topic); err != nil {
 			result["status"] = "ERROR"
 			result["error"] = fmt.Sprint(err)
 			result["status_code"] = http.StatusInternalServerError
@@ -272,9 +272,9 @@ func (h *handler) UpdateTopic(c echo.Context) error {
 			return
 		}
 		_, err = tx.Model(topic).
+			Where("id = ?", topic.Id).
 			Set("topic_name = ?", topic.TopicName).
 			Set("update_time = ?", topic.UpdateTime).
-			Where("id = ?", topic.Id).
 			Update()
 		if err != nil {
 			tx.Rollback()
@@ -290,7 +290,7 @@ func (h *handler) UpdateTopic(c echo.Context) error {
 		result["status"] = "OK"
 		result["topic_new_name"] = topic.TopicName
 		result["status_code"] = http.StatusOK
-		logrus.Infof("[&s] Update Topic id: [ %d ] Success", time.Now().String(), topic.Id)
+		logrus.Infof("[%s] Update Topic Success", time.Now().String())
 		messageChan <- result
 	}(c, messageChan, errorChan)
 
@@ -311,18 +311,18 @@ func (h *handler) UpdateTopic(c echo.Context) error {
 func (h *handler) DeleteTopic(c echo.Context) error {
 	result := make(map[string]interface{})
 	result["time"] = time.Now().Format(layout)
-	id, err := strconv.Atoi(c.Param("topic_id"))
+	topic_id, err := strconv.Atoi(c.Param("topic_id"))
 	if err != nil {
 		result["status"] = "ERROR"
-		result["error"] = fmt.Sprint(err)
+		result["error"] = fmt.Sprint("Topic Id is nil")
 		result["status_code"] = http.StatusBadRequest
-		logrus.Errorf("[%s] Param id ERROR: [%s]", time.Now().String(), err.Error())
+		logrus.Errorf("[%s] Topic Id is nil", time.Now().String())
 		return c.JSONPretty(http.StatusBadRequest, result, "    ")
 	}
 	messageChan := make(chan map[string]interface{})
 	errorChan := make(chan map[string]interface{})
 	go func(c echo.Context, messageChan, errorChan chan map[string]interface{}) {
-		topic := model.NewTopic(id)
+		topic := model.NewTopic(topic_id)
 
 		tx, err := h.DB.Begin()
 		if err != nil {
@@ -333,9 +333,7 @@ func (h *handler) DeleteTopic(c echo.Context) error {
 			errorChan <- result
 			return
 		}
-		_, err = tx.Model(topic).
-			Where("id = ?", topic.Id).
-			Delete()
+		_, err = tx.Model(topic).Where("id = ?", topic.Id).Delete()
 		if err != nil {
 			tx.Rollback()
 			result["status"] = "ERROR"

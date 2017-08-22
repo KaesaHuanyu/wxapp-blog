@@ -12,14 +12,15 @@ type (
 )
 
 const (
-	layout = "2006年 01月02日 15:04:05"
+	layout         = "2 Jan 2006 15:04"
+	Default_Avatar = "http://images.huanyu0w0.cn/blog/rm-rf.jpg"
 )
 
 func NewHandler(db *pg.DB) *handler {
 	return &handler{db}
 }
 
-func getTimeLimit(duration string) int {
+func getDateLimit(duration string) int {
 	switch duration {
 	case "day", "latest":
 		return int(time.Now().Add(-1 * time.Hour).UnixNano())

@@ -9,32 +9,33 @@ import (
 )
 
 const (
-	layout = "2006年 01月02日 15:04:05"
+	layout = "2 Jan 2006 15:04:05"
 )
 
 var (
-	ApiVersion = "v1"
-	PgHost = "119.29.243.98"
-	PgPort = "5432"
-	PgUser = "postgres"
-	PgPassword = "admin"
-	AppUser = "huanyu0w0"
+	ApiVersion  = "v1"
+	PgHost      = "blog.huanyu0w0.cn"
+	PgPort      = "5432"
+	PgUser      = "postgres"
+	PgPassword  = "admin"
+	AppUser     = "huanyu0w0"
 	AppPassword = "3.1415926"
 )
 
 type (
 	Article struct {
-		Id         int               `json:"id"`
-		Title      string            `json:"title" form:"title" sql:",unique,notnull"`
-		Content    string            `json:"content" form:"content" sql:",notnull"` //html & md
-		CreateTime string            `json:"create_time" sql:",notnull"`
-		UpdateTime string            `json:"update_time" sql:",notnull"`
-		ClickCount int               `json:"click_count" sql:",notnull"`
-		LikeReader map[string]string `json:"reader_like" sql:",notnull"`
-		Comments   []*Comment        `json:"comments"`
-		CommentCount int `json:"comment_count" sql:",notnull"`
-		TopicId    int               `json:"topic_id" form:"topic_id" sql:",notnull"` // 0: 话题不明
-		Topic      *Topic
+		Id           int               `json:"id"`
+		Title        string            `json:"title" form:"title" sql:",unique,notnull"`
+		Content      string            `json:"content" form:"content" sql:",notnull"` //html & md
+		CreateTime   string            `json:"create_time" sql:",notnull"`
+		UpdateTime   string            `json:"update_time" sql:",notnull"`
+		ClickCount   int               `json:"click_count" sql:",notnull"`
+		LikeReader   map[string]string `json:"reader_like" sql:",notnull"`
+		LikeCount    int               `json:"like_count" sql:",notnull"`
+		Comments     []*Comment        `json:"comments"`
+		CommentCount int               `json:"comment_count" sql:",notnull"`
+		TopicId      int               `json:"topic_id" form:"topic_id" sql:",notnull"` // 0: 话题不明
+		Topic        *Topic
 	}
 	Comment struct {
 		Id         int    `json:"id"`
@@ -48,13 +49,13 @@ type (
 		//Reader *reader `json:"reader"`
 	}
 	Topic struct {
-		Id         int        `json:"id"`
-		TopicName  string     `json:"topic_name" form:"topic_name" sql:",unique,notnull"`
+		Id        int    `json:"id"`
+		TopicName string `json:"topic_name" form:"topic_name" sql:",unique,notnull"`
 		//LikeCount  int        `json:"like_count" sql:",notnull"`
-		CreateTime string     `json:"create_time" sql:",notnull"`
-		UpdateTime string     `json:"update_time" sql:",notnull"`
-		ArticleCount int `json:"article_count" sql:",notnull"`
-		Articles   []*Article `json:"articles"`
+		CreateTime   string     `json:"create_time" sql:",notnull"`
+		UpdateTime   string     `json:"update_time" sql:",notnull"`
+		ArticleCount int        `json:"article_count" sql:",notnull"`
+		Articles     []*Article `json:"articles"`
 	}
 	//reader struct {
 	//	Id int `json:"id"`
@@ -72,7 +73,7 @@ func init() {
 	db := pg.Connect(&pg.Options{
 		User:     "postgres",
 		Password: "admin",
-		Addr:     "119.29.243.98:5432",
+		Addr:     "blog.huanyu0w0.cn:5432",
 	})
 	defer db.Close()
 

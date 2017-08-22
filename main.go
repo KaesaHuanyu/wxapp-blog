@@ -40,7 +40,7 @@ func main() {
 	e.POST("/"+ApiVersion+"/articles", h.CreateArticle)
 	e.PUT("/"+ApiVersion+"/articles/:article_id", h.UpdateArticle)
 	e.DELETE("/"+ApiVersion+"/articles/:article_id", h.DeleteArticle)
-	e.PATCH("/"+ApiVersion+"/articles/:article_id/like", h.LikeArticle)
+	e.PATCH("/"+ApiVersion+"/articles/:article_id", h.LikeArticle)
 	//comment api
 	//e.GET("/"+ApiVersion+"/articles/:article_id/comments", h.ListComment)
 	e.POST("/"+ApiVersion+"/comments", h.CreateComment)
@@ -51,6 +51,8 @@ func main() {
 	e.POST("/"+ApiVersion+"/topics", h.CreateTopic)
 	e.PUT("/"+ApiVersion+"/topics/:topic_id", h.UpdateTopic)
 	e.DELETE("/"+ApiVersion+"/topics/:topic_id", h.DeleteTopic)
+	//admin
+	e.GET("/dashboard", h.AdminInterface)
 	logrus.Error(e.Start(":1323"))
 }
 
