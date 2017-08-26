@@ -1,8 +1,6 @@
 package main
 
 import (
-	"fmt"
-	"os"
 	"wxapp-blog/handler"
 	. "wxapp-blog/model"
 	_ "wxapp-blog/model"
@@ -11,29 +9,57 @@ import (
 	"github.com/labstack/echo"
 	"github.com/labstack/echo/middleware"
 	"github.com/sirupsen/logrus"
+	"time"
+	"html/template"
 )
 
 func main() {
-	// err := getEnv()
-	// if err != nil {
-	// 	logrus.Errorf("[%s] error: [%s]", time.Now().String(), err.Error())
-	// 	return
-	// }
 	e := echo.New()
-	e.Use(middleware.BasicAuth(func(username, password string, c echo.Context) (bool, error) {
-		if username == AppUser && password == AppPassword {
-			return true, nil
-		}
-		return false, nil
+	e.Use(middleware.BasicAuthWithConfig(middleware.BasicAuthConfig{
+		Skipper: middleware.Skipper(func(c echo.Context) bool {
+			if c.Request().Method == "GET" {
+				return true
+			}
+			if c.Path() == "/"+ApiVersion+"/comments" && c.Request().Method == "POST" {
+				return true
+			}
+			return false
+		}),
+		Validator: func(username, password string, c echo.Context) (bool, error) {
+			if username == AppUser && password == AppPassword {
+				return true, nil
+			}
+			return false, nil
+		},
 	}))
 	db := pg.Connect(&pg.Options{
 		User:     PgUser,
 		Password: PgPassword,
-		Addr:     PgHost + ":" + PgPort,
+		Addr:     PgAddr,
 	})
 	defer db.Close()
 
+	t := &Template{
+		Templates: template.Must(template.ParseGlob("view/*.html")),
+	}
+	e.Renderer = t
+
 	h := handler.NewHandler(db)
+	h.Tokens = make(map[string]bool)
+	go func() {
+		for {
+			time.Sleep(24 * time.Hour)
+			for k := range h.Tokens{
+				delete(h.Tokens, k)
+			}
+		}
+	}()
+	//Render
+	e.GET("/", h.Home)
+	e.GET("/articles/:article_id", h.Article)
+	e.GET("/contact", h.Contact)
+	e.GET("/about", h.About)
+	e.GET("/donate", h.Donate)
 	//article api
 	e.GET("/"+ApiVersion+"/articles", h.ListArticle)
 	e.GET("/"+ApiVersion+"/articles/:article_id", h.GetArticle)
@@ -52,21 +78,6 @@ func main() {
 	e.PUT("/"+ApiVersion+"/topics/:topic_id", h.UpdateTopic)
 	e.DELETE("/"+ApiVersion+"/topics/:topic_id", h.DeleteTopic)
 	//admin
-	e.GET("/dashboard", h.AdminInterface)
+	//e.GET("/dashboard", h.AdminInterface)
 	logrus.Error(e.Start(":1323"))
-}
-
-func getEnv() error {
-	ApiVersion = os.Getenv("apiVersion")
-	PgHost = os.Getenv("pg_host")
-	PgPort = os.Getenv("pg_port")
-	PgUser = os.Getenv("pg_user")
-	PgPassword = os.Getenv("pg_password")
-	AppUser = os.Getenv("app_user")
-	AppPassword = os.Getenv("app_password")
-	if ApiVersion == "" || PgHost == "" || PgPort == "" || PgUser == "" ||
-		PgPassword == "" || AppUser == "" || AppPassword == "" {
-		return fmt.Errorf("SOME ENV is NULL")
-	}
-	return nil
 }

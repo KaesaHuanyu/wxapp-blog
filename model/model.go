@@ -1,9 +1,11 @@
 package model
 
 import (
+	"fmt"
 	"github.com/go-pg/pg"
 	"github.com/go-pg/pg/orm"
 	"github.com/sirupsen/logrus"
+	"os"
 	"strings"
 	"time"
 )
@@ -14,8 +16,7 @@ const (
 
 var (
 	ApiVersion  = "v1"
-	PgHost      = "blog.huanyu0w0.cn"
-	PgPort      = "5432"
+	PgAddr      = "119.29.243.98:5432"
 	PgUser      = "postgres"
 	PgPassword  = "admin"
 	AppUser     = "huanyu0w0"
@@ -57,23 +58,18 @@ type (
 		ArticleCount int        `json:"article_count" sql:",notnull"`
 		Articles     []*Article `json:"articles"`
 	}
-	//reader struct {
-	//	Id int `json:"id"`
-	//	NickName string `json:"nick_name"`
-	//	AvatarUrl string `json:"avatar_url"`
-	//	Gender string `json:"gender"` //性别 0：未知、1：男、2：女
-	//	Province string `json:"province"`
-	//	City string `json:"city"`
-	//	Country string `json:"country"`
-	//	CommentId int `json:"comment_id"`
-	//}
 )
 
 func init() {
+	//err := getEnv()
+	//if err != nil {
+	//	logrus.Errorf("[%s] error: [%s]", time.Now().String(), err.Error())
+	//	os.Exit(1)
+	//}
 	db := pg.Connect(&pg.Options{
-		User:     "postgres",
-		Password: "admin",
-		Addr:     "blog.huanyu0w0.cn:5432",
+		User:     PgUser,
+		Password: PgPassword,
+		Addr:     PgAddr,
 	})
 	defer db.Close()
 
@@ -102,6 +98,21 @@ func init() {
 			logrus.Warnf("[%s] table topics already exists", time.Now().String())
 		}
 	}
+}
+
+func getEnv() error {
+	ApiVersion = os.Getenv("apiVersion")
+	PgAddr = os.Getenv("pg_addr")
+	PgUser = os.Getenv("pg_user")
+	PgPassword = os.Getenv("pg_password")
+	AppUser = os.Getenv("app_user")
+	AppPassword = os.Getenv("app_password")
+	if ApiVersion == "" || PgAddr == "" || PgUser == "" ||
+		PgPassword == "" || AppUser == "" || AppPassword == "" {
+		fmt.Println(ApiVersion, PgAddr, PgUser, PgPassword, AppUser, AppPassword)
+		return fmt.Errorf("SOME ENV is NULL")
+	}
+	return nil
 }
 
 func NewArticle(id int) *Article {
@@ -141,23 +152,3 @@ func NewTopic(id int) *Topic {
 		Articles:   []*Article{},
 	}
 }
-
-//func NewReader(nickname, avatarurl, province, city, country string, gender int) *reader {
-//	g := ""
-//	switch gender {
-//	case 1:
-//		g = "男"
-//	case 2:
-//		g = "女"
-//	default:
-//		g = "未知"
-//	}
-//	return &reader{
-//		NickName: nickname,
-//		AvatarUrl: avatarurl,
-//		Gender: g,
-//		Province: province,
-//		City: city,
-//		Country: country,
-//	}
-//}

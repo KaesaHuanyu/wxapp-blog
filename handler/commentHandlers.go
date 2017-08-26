@@ -16,11 +16,21 @@ func (h *handler) CreateComment(c echo.Context) error {
 	result["time"] = t.Format(layout)
 	comment_id := int(t.UnixNano())
 	result["comment_id"] = comment_id
+	token := c.FormValue("token")
+	if _, ok := h.Tokens[token]; ok {
+		delete(h.Tokens, token)
+	} else {
+		result["status"] = "ERROR"
+		result["error"] = fmt.Sprint("Token Failed.")
+		result["token"] = token
+		result["status_code"] = http.StatusBadRequest
+		return c.JSONPretty(http.StatusBadRequest, result, "    ")
+	}
 
+	comment := model.NewComment(comment_id)
 	messageChan := make(chan map[string]interface{})
 	errorChan := make(chan map[string]interface{})
 	go func(c echo.Context, messageChan, errorChan chan map[string]interface{}) {
-		comment := model.NewComment(comment_id)
 		if err := c.Bind(comment); err != nil {
 			result["status"] = "ERROR"
 			result["comment"] = nil
@@ -112,8 +122,9 @@ func (h *handler) CreateComment(c echo.Context) error {
 	}(c, messageChan, errorChan)
 
 	select {
-	case message := <-messageChan:
-		return c.JSONPretty(http.StatusCreated, message, "    ")
+	case <-messageChan:
+		//return c.JSONPretty(http.StatusCreated, message, "    ")
+		return c.Redirect(http.StatusFound, fmt.Sprintf("/articles/%d#%d", comment.ArticleId, comment.Id))
 	case errMessage := <-errorChan:
 		return c.JSONPretty(http.StatusInternalServerError, errMessage, "    ")
 	case <-time.After(10 * time.Second):

@@ -7,17 +7,22 @@ import (
 
 type (
 	handler struct {
+		Tokens map[string]bool
 		DB *pg.DB
 	}
 )
 
 const (
 	layout         = "2 Jan 2006 15:04"
+	Key = "blogSecret"
 	Default_Avatar = "http://images.huanyu0w0.cn/blog/rm-rf.jpg"
 )
 
 func NewHandler(db *pg.DB) *handler {
-	return &handler{db}
+	return &handler{
+		Tokens: make(map[string]bool),
+		DB: db,
+	}
 }
 
 func getDateLimit(duration string) int {

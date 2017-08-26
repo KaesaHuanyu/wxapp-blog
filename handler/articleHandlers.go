@@ -10,19 +10,17 @@ import (
 	"strconv"
 	"time"
 	"wxapp-blog/model"
+	"crypto/md5"
+	"io"
 )
 
 func (h *handler) GetArticle(c echo.Context) error {
 	result := make(map[string]interface{})
-	result["time"] = time.Now().Format(layout)
 	article_id, err := strconv.Atoi(c.Param("article_id"))
 	if err != nil {
-		result["status"] = "ERROR"
 		result["article"] = nil
-		result["error"] = fmt.Sprint("article_id is nil")
-		result["status_code"] = http.StatusInternalServerError
 		logrus.Errorf("[%s] article_id is nil", time.Now().String())
-		return c.JSONPretty(http.StatusInternalServerError, result, "    ")
+		return c.NoContent(http.StatusBadRequest)
 	}
 	messageChan := make(chan map[string]interface{})
 	errorChan := make(chan map[string]interface{})
@@ -54,8 +52,6 @@ func (h *handler) GetArticle(c echo.Context) error {
 			errorChan <- result
 			return
 		}
-		article.CommentCount = len(article.Comments)
-		article.LikeCount = len(article.LikeReader)
 		article.Content = string(blackfriday.MarkdownCommon([]byte(article.Content)))
 
 		result["status"] = "OK"
@@ -65,6 +61,12 @@ func (h *handler) GetArticle(c echo.Context) error {
 		messageChan <- result
 	}(c, messageChan, errorChan)
 
+	crutime := time.Now().Unix()
+	hash := md5.New()
+	io.WriteString(hash, strconv.FormatInt(crutime, 10))
+	token := fmt.Sprintf("%x", hash.Sum(nil))
+	h.Tokens[token] = true
+	result["token"] = token
 	select {
 	case message := <-messageChan:
 		return c.JSONPretty(http.StatusOK, message, "    ")

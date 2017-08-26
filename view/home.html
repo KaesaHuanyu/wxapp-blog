@@ -1,11 +1,13 @@
+{{define "home"}}
 <!DOCTYPE html>
 <html>
 <head>
-	<title>首页</title>
+	<title>Home - Huanyu Blog</title>
+  <link rel="icon" href="http://images.huanyu0w0.cn/blog/rm-rf.jpg">
 	<meta charset="UTF-8">
    	<link rel="stylesheet" href="https://code.getmdl.io/1.3.0/material.grey-blue.min.css" />
     <script type="text/javascript" src="http://images.huanyu0w0.cn/material.min.js"></script>
-    <link rel="stylesheet" href="https://fonts.googleapis.com/icon?family=Material+Icons">
+    <link rel="stylesheet" href="http://images.huanyu0w0.cn/css/material_icon.css">
 </head>
 <body>
 <div class="mdl-layout mdl-js-layout">
@@ -15,9 +17,9 @@
       <div class="mdl-layout-spacer"></div>
       <!-- Navigation -->
       <nav class="mdl-navigation">
-        <a class="mdl-navigation__link mdl-color-text--accent" href="/"><strong>BLOG</strong></a>
-        <a class="mdl-navigation__link mdl-color-text--accent" href="contact.html"><strong>CONTACT</strong></a>
-        <a class="mdl-navigation__link mdl-color-text--accent" href="/about"><strong>ABOUT</strong></a>
+        <a class="mdl-navigation__link mdl-color-text--accent" href="/"><strong>HOME</strong></a>
+        <a class="mdl-navigation__link mdl-color-text--accent" href="contact"><strong>CONTACT</strong></a>
+        <a class="mdl-navigation__link mdl-color-text--accent" href="/donate"><strong>DONATE</strong></a>
       </nav>
       &nbsp&nbsp&nbsp&nbsp&nbsp&nbsp
       &nbsp&nbsp&nbsp&nbsp&nbsp&nbsp
@@ -37,10 +39,10 @@
   <div class="mdl-layout__drawer mdl-color-text--accent">
     <span class="mdl-layout-title">Topic</span>
     <nav class="mdl-navigation">
-      <a class="mdl-navigation__link" href="">Link</a>
-      <a class="mdl-navigation__link" href="">Link</a>
-      <a class="mdl-navigation__link" href="">Link</a>
-      <a class="mdl-navigation__link" href="">Link</a>
+      <a class="mdl-navigation__link" href="/">ALL</a>
+      {{range .topics}}
+      <a class="mdl-navigation__link" href="/?topic={{.Id}}">{{.TopicName}}</a>
+      {{end}}
     </nav>
   </div>
 
@@ -51,34 +53,36 @@
   			<h4 align="center" class="mdl-color-text--grey">A BLOG ABOUT HUANYU's LIFE TOUR</h4>
   		</div>
   		<br>
-  		<div class="mdl-cell mdl-cell--2-col"></div>
-  		<div class="mdl-cell mdl-cell--8-col">
-  			<div class="mdl-progress mdl-js-progress mdl-progress__indeterminate" style="width: 100%;"></div><br>
+  		<div class="mdl-cell mdl-cell--3-col"></div>
+  		<div class="mdl-cell mdl-cell--6-col">
+  			<div class="mdl-progress mdl-js-progress mdl-progress__indeterminate" style="width: 100%;"></div>
   		</div>
-  		<div class="mdl-cell mdl-cell--2-col"></div>
+  		<div class="mdl-cell mdl-cell--3-col"></div>
 
-  		<div class="mdl-cell mdl-cell--2-col"></div>
-  		<div class="mdl-cell mdl-cell--8-col">
+  		<div class="mdl-cell mdl-cell--3-col"></div>
+  		<div class="mdl-cell mdl-cell--6-col">
   			<ul class="mdl-list">
-			  <a href="article.html" target="_blank" style="text-decoration: none;">
-			  <li class="mdl-list__item mdl-button mdl-js-button">
-			    <span class="mdl-list__item-primary-content mdl-color-text--grey-800"><big>
-			      <strong>
-			      Service_firewall
-			      </strong>
-			      &nbsp...&nbsp2017年08月18日
-			    </span></big>
-			  </li>
-			  </a>
-			  <hr>
-
-			</ul>
+          {{range .articles}}
+  			  <a href="/articles/{{.Id}}" style="text-decoration: none;">
+    			  <li class="mdl-list__item mdl-button mdl-js-button">
+    			    <span class="mdl-list__item-primary-content mdl-color-text--grey-800"><big>
+    			      <strong>
+    			      {{.Title}}
+    			      </strong>
+    			      &nbsp...&nbsp{{.CreateTime}}
+    			    </span></big>
+    			  </li>
+  			  </a>
+  			  <hr>
+          {{end}}
+			  </ul>
 
   		</div>
-  		<div class="mdl-cell mdl-cell--2-col"></div>
+  		<div class="mdl-cell mdl-cell--3-col"></div>
   	</div>
   </main>
 
 </div>
 </body>
 </html>
+{{end}}
