@@ -74,7 +74,7 @@ func init() {
 	defer db.Close()
 
 	article, comment, topic := NewArticle(0), NewComment(0), NewTopic(0)
-	err := db.CreateTable(article, &orm.CreateTableOptions{})
+	err = db.CreateTable(article, &orm.CreateTableOptions{})
 	if err != nil {
 		if !strings.Contains(err.Error(), "already exists") {
 			panic(err)
