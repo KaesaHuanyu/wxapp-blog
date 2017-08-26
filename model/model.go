@@ -61,11 +61,11 @@ type (
 )
 
 func init() {
-	//err := getEnv()
-	//if err != nil {
-	//	logrus.Errorf("[%s] error: [%s]", time.Now().String(), err.Error())
-	//	os.Exit(1)
-	//}
+	err := getEnv()
+	if err != nil {
+		logrus.Errorf("[%s] error: [%s]", time.Now().String(), err.Error())
+		os.Exit(1)
+	}
 	db := pg.Connect(&pg.Options{
 		User:     PgUser,
 		Password: PgPassword,
